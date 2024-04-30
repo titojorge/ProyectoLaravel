@@ -5,9 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/','welcome')->name('welcome');
 
-Route::get('/chirps', function(){
-    return 'Welcome to our chirps page';
-})->name('chirps.index');
+
 
 // Route::get('/tweets', function () {
 //     return "Welcome to our tweets page ";
@@ -26,6 +24,15 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/chirps', function(){
+        return view('chirps.index');
+    })->name('chirps.index');
+
+    Route::post('/chirps', function(){
+        $message = request('message');
+        return $message;
+    });
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
