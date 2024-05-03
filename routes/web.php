@@ -1,11 +1,30 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ChirpController;
 use Illuminate\Support\Facades\Route;
+
+DB::listen(function($query){
+    dump($query->sql);
+});
 
 Route::view('/','welcome')->name('welcome');
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/chirps', [ChirpController::class, 'index'])->name('chirps.index');
+
+    Route::post('/chirps', [ChirpController::class, 'store'])->name('chirps.store');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
 
 // Route::get('/tweets', function () {
 //     return "Welcome to our tweets page ";
@@ -18,24 +37,3 @@ Route::view('/','welcome')->name('welcome');
 //     }
 //     return "Chirp detail " . $chirp;
 // });
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/chirps', function(){
-        return view('chirps.index');
-    })->name('chirps.index');
-
-    Route::post('/chirps', function(){
-        $message = request('message');
-        return $message;
-    });
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-require __DIR__.'/auth.php';
