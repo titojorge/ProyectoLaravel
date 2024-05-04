@@ -16,7 +16,7 @@
                         placeholder= "{{ __('What\'s on your mind?') }}"
                         > {{ old('message') }}</textarea>
                         <x-input-error :messages="$errors->get('message')" class="mt-2" />
-                        <x-primary-button class="mt-4">{{ __('Chirp')}}</x-primary-button>
+                        <x-primary-button class="mt-4"> {{ __('Chirp')}} </x-primary-button>
                     </form>
                 </div>
             </div>
@@ -31,10 +31,36 @@
                             <div>
                                 <span class="text-gray-800 dark:text-gray-200">{{ $chirp->user->name }}</span>
                                 <small class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $chirp->created_at->format('j M Y, g:i a') }}</small>
+                                @unless($chirp->created_at->eq($chirp->updated_at))
+                                    <small class="text-sm text-gray-600 dark:text-gray-400">&middot; {{__('Edited')}}</small>
+                                @endunless
                             </div>
                         </div>
                         <p class="mt-4 text-lg text-gray-900 dark:text-gray-100">{{ $chirp->message }}</p>
                     </div>
+                    <!-- @if (auth()->user()->is($chirp->user)) -->
+                    @can('update',$chirp)
+                    <x-dropdown class="mt-4">
+                        <x-slot name="trigger">
+                            <svg class="w-5 h-5 text-gray-600" data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
+                            </svg>
+                        </x-slot>
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('chirps.edit',$chirp)">
+                                {{__('Edit Chirp')}}
+                            </x-dropdown-link>
+                            <form action="{{route('chirps.destroy',$chirp)}}" method="POST">
+                                @csrf @method('DELETE')
+                                <x-dropdown-link :href="route('chirps.destroy',$chirp)" onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{__('Delete Chirp')}}
+                                </x-dropdown-link>
+                            </form>
+                            
+                        </x-slot>
+                    </x-dropdown>
+                    @endcan
+                    <!-- @endif -->
                 </div>
                 @endforeach
             </div>
